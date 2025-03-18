@@ -29,7 +29,7 @@
         results: [],
     };
 
-    let app = localStore<WobbleWatch>("wobblewatch", defaultValue)
+    let app = localStore<WobbleWatch>("wobble-watch", defaultValue)
     let timeout: number;
 
     const requiredSamples = 3;
