@@ -164,7 +164,7 @@
 
     <br>
 
-    <h6 class="h6">How many beers have you had so far?</h6>
+    <p class="text-lg font-bold">How many beers have you had so far?</p>
     <div class="grid grid-cols-5 gap-2">
         {#each [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ] as o}
             <button onclick={() => app.value.ingested = o} class="btn btn-lg preset-outlined-surface-200-800" class:preset-filled-primary-500={app.value.ingested === o}>{o}</button>
@@ -173,10 +173,10 @@
 
     <br>
 
-    <h6 class="flex justify-between h6">
+    <h6 class="flex justify-between text-lg font-bold">
         <span>
             {#if app.value.state === "initial"}
-                Start and press again when prompted
+                Press again when prompted
             {:else if app.value.state === "countdown"}
                 Get ready!
             {:else if app.value.state === "waiting"}
@@ -204,13 +204,13 @@
 
     <div class="flex flex-col items-center">
         <p class="text-surface-600-400">Another round?</p>
-        <h3 class="text-center h3">{conclusion}</h3>
+        <h3 class="text-center text-xl font-bold">{conclusion}</h3>
     </div>
 
     <br>
 
     <hgroup>
-        <h4 class="h4">Results</h4>
+        <h4 class="text-lg font-bold">Your past results</h4>
         {#if app.value.results.length}
             <p>Completed experiments</p>
         {:else}
