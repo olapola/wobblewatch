@@ -131,13 +131,15 @@
 
     function saveResults() {
         const avg = app.value.times.reduce((a, b) => a + b, 0) / app.value.times.length;
-        app.value.results.push({
+        let item: Result = {
             created: Date.now(),
             times: app.value.times,
             avg: avg,
             errors: app.value.errors,
             ingested: app.value.ingested,
-        });
+        };
+
+        app.value.results = [ item, ...app.value.results ];
         conclusion = pickConclusion(avg);
         enterInitial();
     }
