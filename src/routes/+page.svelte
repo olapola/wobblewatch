@@ -174,7 +174,7 @@
     <h6 class="flex justify-between h6">
         <span>
             {#if app.value.state === "initial"}
-                Start and press when prompted
+                Start and press again when prompted
             {:else if app.value.state === "countdown"}
                 Get ready!
             {:else if app.value.state === "waiting"}
