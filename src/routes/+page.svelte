@@ -232,7 +232,7 @@
                     <tr class="hover:preset-tonal">
                         <td>
                             <span class="text-surface-600-400">{dayjs(r.created).format("M/DD")}</span>
-                            <span>{dayjs(r.created).format("HH:MM:ss")}</span>
+                            <span>{dayjs(r.created).format("HH:mm:ss")}</span>
                         </td>
                         <td>{r.ingested} <span class="text-surface-600-400">beers</span></td>
                         <td>
