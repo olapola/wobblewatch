@@ -11,6 +11,8 @@
     let conclusion = $state<string>("Your destiny awaits!");
     let selectedResultIndex = $state<number>(-1);
     let timeoutSelected: number;
+    let timeoutDelete: number;
+    let deleteConfirmations = $state<number>(3);
     let timeoutGame: number;
 
     const requiredSamples = 3;
@@ -100,12 +102,30 @@
         }
 
         selectedResultIndex = index;
-        timeoutSelected = setTimeout(() => selectedResultIndex = -1, 3000);
+        timeoutSelected = setTimeout(() => {
+            selectedResultIndex = -1;
+        }, 2000);
     }
 
     function deleteResult(index: number) {
         app.value.results.splice(index, 1);
         selectResult(-1);
+    }
+
+    function deleteAllResults() {
+        if (timeoutDelete) {
+            clearTimeout(timeoutDelete);
+        }
+
+        timeoutDelete = setTimeout(() => {
+            deleteConfirmations = 3;
+        }, 2000);
+
+        if (deleteConfirmations <= 0) {
+            app.value.results = [];
+        }
+
+        deleteConfirmations--;
     }
 </script>
 
@@ -215,8 +235,12 @@
 
     <br>
 
+    {#if deleteConfirmations < 3 && app.value.results.length}
+        <p class="text-center text-error-500" in:slide out:slide>Press delete {deleteConfirmations + 1} more times</p>
+    {/if}
+
     {#if app.value.results.length}
-        <button onclick={() => app.value.results = []} class="lowercase btn">delete all results</button>
+        <button onclick={() => deleteAllResults()} class="lowercase btn" class:preset-filled-error-500={deleteConfirmations < 3}>delete all results</button>
     {/if}
 </div>
 
