@@ -20,6 +20,7 @@
 		"@tailwindcss/forms": "^0.5.9",
 		"@tailwindcss/typography": "^0.5.15",
 		"@tailwindcss/vite": "^4.0.0",
+		"@vercel/analytics": "^1.5.0",
 		"dayjs": "^1.11.13",
 		"svelte": "^5.0.0",
 		"svelte-check": "^4.0.0",
