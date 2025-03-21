@@ -4,9 +4,12 @@
     import { localStore } from "$lib/localstore.svelte";
     import { textMiddle, textNegative, textPositive } from "$lib/texts";
     import { defaultWobbleWatch, type Result, type WobbleWatch } from "$lib/types";
+    import { slide } from "svelte/transition";
+    import { flip } from "svelte/animate";
 
     let app = localStore<WobbleWatch>("wobble-watch", defaultWobbleWatch)
-    let conclusion: string = "Your destiny awaits!";
+    let conclusion = $state<string>("Your destiny awaits!");
+    let selectedResultIndex = $state<number>(-1);
     let timeout: number;
 
     const requiredSamples = 3;
@@ -89,6 +92,22 @@
         }
         return textNegative[Math.floor(rand * textNegative.length)];
     }
+
+    let selectedTimeout: number;
+
+    function selectResult(index: number) {
+        if (selectedTimeout) {
+            clearTimeout(selectedTimeout);
+        }
+
+        selectedResultIndex = index;
+        selectedTimeout = setTimeout(() => selectedResultIndex = -1, 3000);
+    }
+
+    function deleteResult(index: number) {
+        app.value.results.splice(index, 1);
+        selectResult(-1);
+    }
 </script>
 
 <div class="flex flex-col gap-2">
@@ -153,6 +172,13 @@
         {/if}
     </hgroup>
 
+    {#if selectedResultIndex >= 0}
+        <div class="flex gap-2" in:slide out:slide>
+            <button type="button" class="basis-1/3 btn preset-outlined-error-500" onclick={() => deleteResult(selectedResultIndex)}>Delete result</button>
+            <button type="button" class="basis-2/3 btn preset-outlined-primary-500" onclick={() => selectResult(-1)}>Nevermind</button>
+        </div>
+    {/if}
+
     {#if app.value.results.length}
         <div class="table-wrap">
             <table class="table caption-bottom">
@@ -165,16 +191,14 @@
                 </tr>
                 </thead>
                 <tbody>
-                {#each app.value.results as r (r.created)}
-                    <tr class="hover:preset-tonal">
+                {#each app.value.results as r, i (r.created)}
+                    <tr class="cursor-pointer hover:preset-tonal" animate:flip class:preset-filled-error-500={i === selectedResultIndex} onclick={() => selectResult(i)}>
                         <td>
-                            <span class="text-surface-600-400">{dayjs(r.created).format("M/DD")}</span>
+                            <span class="text-surface-600-400">{dayjs(r.created).format("MM/DD")}</span>
                             <span>{dayjs(r.created).format("HH:mm:ss")}</span>
                         </td>
                         <td>{r.ingested} <span class="text-surface-600-400">beers</span></td>
-                        <td>
-                            <span class:text-surface-700-300={r.errors === 0}>{r.errors}</span>
-                            <span class="text-surface-600-400">goofs</span>
+                        <td class:text-surface-700-300={r.errors === 0}>{r.errors} goofs
                         </td>
                         <td class="text-end font-mono">{r.avg.toFixed(0)} <span class="text-surface-600-400">ms</span></td>
                     </tr>
@@ -193,7 +217,7 @@
     <br>
 
     {#if app.value.results.length}
-        <button onclick={() => app.value.results = []} class="lowercase btn">Delete Results</button>
+        <button onclick={() => app.value.results = []} class="lowercase btn">delete all results</button>
     {/if}
 </div>
 
