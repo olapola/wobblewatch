@@ -223,7 +223,7 @@
                         <td>
                             <span class:text-surface-700-300={r.errors === 0}>{r.errors} goofs</span>
                         </td>
-                        <td class="text-end font-mono">
+                        <td class="text-end">
                             <span>{r.avg.toFixed(0)}</span>
                             <span class="text-surface-600-400">ms</span>
                         </td>
