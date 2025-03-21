@@ -81,10 +81,10 @@
 
     function pickConclusion(avg: number): string {
         const rand: number = Math.random();
-        if (avg < 500) {
+        if (avg < 600) {
             return textPositive[Math.floor(rand * textPositive.length)];
         }
-        if (avg < 1500) {
+        if (avg < 1200) {
             return textMiddle[Math.floor(rand * textMiddle.length)];
         }
         return textNegative[Math.floor(rand * textNegative.length)];
