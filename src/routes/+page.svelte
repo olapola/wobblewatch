@@ -10,7 +10,8 @@
     let app = localStore<WobbleWatch>("wobble-watch", defaultWobbleWatch)
     let conclusion = $state<string>("Your destiny awaits!");
     let selectedResultIndex = $state<number>(-1);
-    let timeout: number;
+    let timeoutSelected: number;
+    let timeoutGame: number;
 
     const requiredSamples = 3;
     const minDelay = 1;
@@ -33,7 +34,7 @@
 
         app.value.state = "countdown";
         const delay = Math.floor(Math.random() * maxDelay) + minDelay;
-        timeout = setTimeout(() => {
+        timeoutGame = setTimeout(() => {
             return enterWaiting();
         }, delay * 1000);
     }
@@ -61,8 +62,8 @@
         app.value.state = "error";
         app.value.errors += 1;
         console.error("you clicked too early!");
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
+        clearTimeout(timeoutGame);
+        timeoutGame = setTimeout(() => {
             return enterCountdown();
         }, 1000);
     }
@@ -93,15 +94,13 @@
         return textNegative[Math.floor(rand * textNegative.length)];
     }
 
-    let selectedTimeout: number;
-
     function selectResult(index: number) {
-        if (selectedTimeout) {
-            clearTimeout(selectedTimeout);
+        if (timeoutSelected) {
+            clearTimeout(timeoutSelected);
         }
 
         selectedResultIndex = index;
-        selectedTimeout = setTimeout(() => selectedResultIndex = -1, 3000);
+        timeoutSelected = setTimeout(() => selectedResultIndex = -1, 3000);
     }
 
     function deleteResult(index: number) {
@@ -175,7 +174,7 @@
     {#if selectedResultIndex >= 0}
         <div class="flex gap-2" in:slide out:slide>
             <button type="button" class="basis-1/3 btn preset-outlined-error-500" onclick={() => deleteResult(selectedResultIndex)}>Delete result</button>
-            <button type="button" class="basis-2/3 btn preset-outlined-primary-500" onclick={() => selectResult(-1)}>Nevermind</button>
+            <button type="button" class="basis-2/3 btn preset-outlined-primary-500" onclick={() => selectResult(-1)}>Never mind</button>
         </div>
     {/if}
 
