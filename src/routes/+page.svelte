@@ -216,10 +216,17 @@
                             <span class="text-surface-600-400">{dayjs(r.created).format("MM/DD")}</span>
                             <span>{dayjs(r.created).format("HH:mm:ss")}</span>
                         </td>
-                        <td>{r.ingested} <span class="text-surface-600-400">beers</span></td>
-                        <td class:text-surface-700-300={r.errors === 0}>{r.errors} goofs
+                        <td>
+                            <span>{r.ingested}</span>
+                            <span class="text-surface-600-400">beers</span>
                         </td>
-                        <td class="text-end font-mono">{r.avg.toFixed(0)} <span class="text-surface-600-400">ms</span></td>
+                        <td>
+                            <span class:text-surface-700-300={r.errors === 0}>{r.errors} goofs</span>
+                        </td>
+                        <td class="text-end font-mono">
+                            <span>{r.avg.toFixed(0)}</span>
+                            <span class="text-surface-600-400">ms</span>
+                        </td>
                     </tr>
                 {/each}
                 </tbody>
