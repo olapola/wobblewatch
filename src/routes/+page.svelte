@@ -213,7 +213,7 @@
                 {#each app.value.results as r, i (r.created)}
                     <tr class="cursor-pointer hover:preset-tonal" animate:flip class:preset-filled-error-500={i === selectedResultIndex} onclick={() => selectResult(i)}>
                         <td>
-                            <span class="text-surface-600-400">{dayjs(r.created).format("MM/DD")}</span>
+                            <span class="text-surface-600-400">{dayjs(r.created).format("DD/M")}</span>
                             <span>{dayjs(r.created).format("HH:mm:ss")}</span>
                         </td>
                         <td>
