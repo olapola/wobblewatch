@@ -206,7 +206,7 @@
                     <th>Created</th>
                     <th>Ingested</th>
                     <th>Errors</th>
-                    <th class="flex justify-end">Avg</th>
+                    <th class="flex justify-end">Average</th>
                 </tr>
                 </thead>
                 <tbody>
