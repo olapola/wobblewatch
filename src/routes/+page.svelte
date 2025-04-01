@@ -7,6 +7,8 @@
     import { slide } from "svelte/transition";
     import { flip } from "svelte/animate";
 
+    import { writable } from "svelte/store"; //Ola la till
+
     let app = localStore<WobbleWatch>("wobble-watch", defaultWobbleWatch)
     let conclusion = $state<string>("Your destiny awaits!");
     let selectedResultIndex = $state<number>(-1);
@@ -18,6 +20,10 @@
     const requiredSamples = 3;
     const minDelay = 1;
     const maxDelay = 3;
+    
+    let beerLevel = writable(0); // Reactive store for beer level
+    let beerPourInterval: number;  // for setInterval and clearInterval
+    let updateInterval = 10 // ms
 
     onMount(() => {
         enterInitial();
@@ -30,10 +36,11 @@
     }
 
     function enterCountdown() {
+        
         if (app.value.state === "countdown") {
             return enterError();
         }
-
+        
         app.value.state = "countdown";
         const delay = Math.floor(Math.random() * maxDelay) + minDelay;
         timeoutGame = setTimeout(() => {
@@ -44,7 +51,23 @@
     function enterWaiting() {
         app.value.state = "waiting";
         app.value.begin = Date.now();
-    }
+        
+        beerLevel.set(0);
+        
+        let percentagePerUpdate = 50*updateInterval/smallestAvg
+
+        // Start pouring beer (gradually increasing the beer level)
+        beerPourInterval = setInterval(() => {
+            beerLevel.update(currentLevel => {
+                // Stop pouring if beer is full
+                if (currentLevel < 100) {
+                    return currentLevel + percentagePerUpdate;
+                }
+                clearInterval(beerPourInterval); // Stop pouring
+                return currentLevel;
+            });
+        }, updateInterval); // Increase beer level every updateInterval ms
+    }   
 
     function enterStopped() {
         if (app.value.state !== "waiting") {
@@ -53,6 +76,9 @@
         let end = Date.now();
         app.value.state = "stopped";
         app.value.times.push(end - app.value.begin);
+
+        // Clear the beer pouring interval when the test is stopped
+        clearInterval(beerPourInterval);  // Strange place to put this, but it works.
 
         if (app.value.times.length === requiredSamples) {
             return saveResults();
@@ -79,6 +105,11 @@
             errors: app.value.errors,
             ingested: app.value.ingested,
         };
+
+        // Use the calculated avg directly to update the beer level
+        const percentagePerUpdateFinal = 50 * avg / smallestAvg; // Scale based on smallest average time
+        beerLevel.set(Math.min(percentagePerUpdateFinal, 100)); 
+
 
         app.value.results = [ item, ...app.value.results ];
         conclusion = pickConclusion(avg);
@@ -127,6 +158,9 @@
 
         deleteConfirmations--;
     }
+    // Get the smallest average value from the results (if there are results). Not tested without result.
+    let smallestAvg = Math.min(...app.value.results.map(r => r.avg || Infinity));
+
 </script>
 
 <div class="flex flex-col gap-2">
@@ -145,6 +179,24 @@
     </div>
 
     <br>
+
+    <!-- Beer glass -->
+    <div class="beer-glass-container">
+        <div class="beer-glass">
+            <div class="sober-line-text">Sober</div>
+            <div class="beer-half-line"></div>
+            {#if app.value.state === "initial" && app.value.results.length > 0}
+                <div class="last-average">
+                <p class="text-center">Your result (average): {app.value.results[0].avg.toFixed(0)} ms</p>
+                </div>
+            {/if}
+            <div class="foam"></div>
+            <div class="beer-level" style="height: {$beerLevel}%"></div>
+        </div>
+    </div>
+    <br>
+
+        
 
     <h6 class="flex justify-between text-lg font-bold">
         <span>
@@ -251,6 +303,14 @@
     {/if}
 </div>
 
+<div class="smallest-avg">
+    {#if app.value.results.length > 0}
+        <p class="text-center text-lg">Smallest Reaction Time: {smallestAvg.toFixed(0)} ms</p>
+    {:else}
+        <p class="text-center text-lg">No results yet</p>
+    {/if}
+</div>
+
 <style lang="postcss">
     th {
         font-weight: bold;
@@ -259,4 +319,80 @@
     td {
         font-family: monospace;
     }
+
+
+.beer-glass-container {
+  width: 120px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+/* The beer glass itself */
+.beer-glass {
+  width: 100px;
+  height: 200px;
+  border: 0 solid transparent;
+  border-width: 0 5px 5px; /* top, sides, bottom */
+  border-color: transparent #cccccc #cccccc; /* top, sides, bottom */
+  border-radius: 5px;
+  position: relative;
+}
+
+.sober-line-text {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translateX(-50%); /* Center the text horizontally */
+  font-size: 12px;
+  font-weight: bold;
+  color: #333;
+  z-index: 2;
+  white-space: nowrap;
+  max-width: 90%;
+  text-align: center; /* Ensure text is centered within the container */
+}
+
+.beer-half-line {
+  position: absolute;
+  top: 40%; /* 60% here but 50% in calcuations... */
+  left: 0;
+  width: 100%;
+  border-top: 2px dotted #333;
+  z-index: 1;
+}
+/* Foam on top of the beer
+.foam {
+  width: 100px;
+  height: 40px;
+  border-radius: 20px;
+  background-color: #ffffff;
+  position: absolute;
+  top: -20px;
+  left: -5px;
+}
+*/
+
+/* Last Average text inside the glass */
+.last-average {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  z-index: 3;
+}
+
+
+.beer-level {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: #f8e47b;
+  transition: height 0.01s ease-in-out;
+  height: 0%; /* This will change dynamically */
+}
+
 </style>
